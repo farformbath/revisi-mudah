@@ -75,18 +75,16 @@ uv run mentorspec inspect bimbingan.m4a
 uv run mentorspec transcribe bimbingan.m4a -o transcript.json --cloud-consent ask
 ```
 
-### 4. Run MCP Server
-To connect MentorSpec to Claude Code, OpenCode, Antigravity, or Cursor:
-```json
-{
-  "mcpServers": {
-    "mentorspec": {
-      "command": "uv",
-      "args": ["--directory", "/path/to/mentorspec", "run", "mentorspec-mcp"]
-    }
-  }
-}
-```
+### 4. Connect via MCP Server
+MentorSpec provides standard stdio MCP tools. See [`docs/mcp-deployment.md`](docs/mcp-deployment.md) for verified client-specific configurations:
+
+- **Oh My Pi (OMP):** `~/.omp/agent/mcp.json` or `.omp/mcp.json` (`"type": "stdio"`)
+- **Antigravity:** `~/.gemini/config/mcp_config.json` or `.agents/mcp_config.json`
+- **OpenCode:** `opencode.json` (`"type": "local"`, command array)
+- **Claude Desktop / Claude Code:** `claude_desktop_config.json` / `~/.claude.json` / `.mcp.json`
+- **Cursor:** `.cursor/mcp.json`
+
+*Windows Note: If your GUI client cannot locate `uv` in PATH, specify the absolute path (e.g. `C:/Users/LOQ/.local/bin/uv.exe`).*
 
 ---
 
