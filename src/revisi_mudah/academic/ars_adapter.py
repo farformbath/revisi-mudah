@@ -1,6 +1,6 @@
 """Handoff adapter for Academic Research Skills (ARS).
 
-Per MentorSpec architectural boundary:
+Per Revisi Mudah architectural boundary:
 This adapter exports a handoff document only.
 It does NOT execute ARS Revision Mode #390 and does NOT modify any manuscript files.
 """

@@ -1,4 +1,4 @@
-"""CLI interface for MentorSpec using Typer."""
+"""CLI interface for Revisi Mudah using Typer."""
 
 from __future__ import annotations
 

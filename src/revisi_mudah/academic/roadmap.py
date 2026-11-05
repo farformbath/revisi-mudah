@@ -1,4 +1,4 @@
-"""Roadmap and Implementation Plan generator for MentorSpec."""
+"""Roadmap and Implementation Plan generator for Revisi Mudah."""
 
 from __future__ import annotations
 

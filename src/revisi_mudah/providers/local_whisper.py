@@ -81,7 +81,9 @@ class LocalWhisperProvider(AudioProvider):
                 conf = None
                 if hasattr(s, "avg_logprob") and s.avg_logprob is not None:
                     try:
-                        conf = round(float(min(1.0, max(0.0, math.exp(s.avg_logprob)))), 4)
+                        conf = round(
+                            float(min(1.0, max(0.0, math.exp(s.avg_logprob)))), 4
+                        )
                     except (OverflowError, ValueError):
                         conf = None
 

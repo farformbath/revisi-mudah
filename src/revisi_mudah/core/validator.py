@@ -1,4 +1,4 @@
-"""Semantic and schema validators for MentorSpec 1.0."""
+"""Semantic and schema validators for Revisi Mudah v1.0."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from revisi_mudah.core.contracts import (
 
 
 class ValidationError(Exception):
-    """Base exception for all MentorSpec validation errors."""
+    """Base exception for all Revisi Mudah validation errors."""
 
 
 class SemanticValidationError(ValidationError):

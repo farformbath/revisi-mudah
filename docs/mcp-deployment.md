@@ -133,9 +133,8 @@ Cursor requires `"type": "stdio"` for stdio-based servers in `.cursor/mcp.json`.
 
 ## ⚠️ Repository Working Directory & Windows Path Fallback
 
-### Transition Path:
-The configurations above use the final target directory `C:/Users/LOQ/revisi-mudah`.  
-During the transition phase, while the repository resides at `C:/Users/LOQ/mentorspec`, replace the `--directory` argument with `C:/Users/LOQ/mentorspec`.
+### Repository Path:
+The repository is deployed at `C:/Users/LOQ/revisi-mudah`. All MCP configurations reflect this active path.
 
 ### Executable Fallback:
 If a GUI client cannot find `uv` in its environment PATH, substitute `"uv"` with the verified absolute binary path:

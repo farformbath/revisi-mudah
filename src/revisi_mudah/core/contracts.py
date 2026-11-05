@@ -1,4 +1,4 @@
-"""Pydantic data contracts for MentorSpec 1.0."""
+"""Pydantic data contracts for Revisi Mudah v1.0."""
 
 from __future__ import annotations
 

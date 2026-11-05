@@ -1,4 +1,4 @@
-"""Academic taxonomy and thesis chapter mappings for MentorSpec."""
+"""Academic taxonomy and thesis chapter mappings for Revisi Mudah."""
 
 from __future__ import annotations
 

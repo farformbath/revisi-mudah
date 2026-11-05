@@ -1,4 +1,4 @@
-"""Deterministic tool implementations for MentorSpec MCP server."""
+"""Deterministic tool implementations for Revisi Mudah MCP server."""
 
 from __future__ import annotations
 
