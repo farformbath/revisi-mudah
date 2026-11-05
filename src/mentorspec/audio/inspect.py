@@ -51,6 +51,7 @@ def get_audio_duration_ms(path: Path) -> int:
     if path.suffix.lower() == ".wav":
         try:
             import wave
+
             with wave.open(str(path), "rb") as wf:
                 frames = wf.getnframes()
                 rate = wf.getframerate()
