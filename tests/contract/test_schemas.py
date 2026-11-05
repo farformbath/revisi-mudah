@@ -2,7 +2,7 @@
 
 import pytest
 
-from mentorspec.core.validator import ValidationError, validate_against_json_schema
+from revisi_mudah.core.validator import ValidationError, validate_against_json_schema
 
 
 def test_audio_result_schema_valid():

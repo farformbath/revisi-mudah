@@ -16,12 +16,12 @@ from pathlib import Path
 
 import pytest
 
-from mentorspec.academic.adjudication import apply_adjudication
-from mentorspec.academic.ars_adapter import export_ars_revision_roadmap
-from mentorspec.academic.extraction import parse_extracted_feedback
-from mentorspec.academic.roadmap import generate_implementation_plan
-from mentorspec.audio.inspect import inspect_audio
-from mentorspec.core.contracts import (
+from revisi_mudah.academic.adjudication import apply_adjudication
+from revisi_mudah.academic.ars_adapter import export_ars_revision_roadmap
+from revisi_mudah.academic.extraction import parse_extracted_feedback
+from revisi_mudah.academic.roadmap import generate_implementation_plan
+from revisi_mudah.audio.inspect import inspect_audio
+from revisi_mudah.core.contracts import (
     AdjudicationDecision,
     AudioResult,
     AuthorAdjudication,
@@ -30,14 +30,14 @@ from mentorspec.core.contracts import (
     Transcription,
     TranscriptSegment,
 )
-from mentorspec.core.policy import (
+from revisi_mudah.core.policy import (
     CloudUploadConsent,
     PrivacyPolicy,
     PrivacyViolationError,
 )
-from mentorspec.core.router import AudioRouter
-from mentorspec.core.validator import EvidenceIntegrityError
-from mentorspec.providers.base import AudioProvider
+from revisi_mudah.core.router import AudioRouter
+from revisi_mudah.core.validator import EvidenceIntegrityError
+from revisi_mudah.providers.base import AudioProvider
 
 
 def create_synthetic_wav(path: Path, duration_seconds: int = 5) -> Path:

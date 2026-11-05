@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mentorspec.audio.inspect import compute_sha256, detect_media_type, inspect_audio
+from revisi_mudah.audio.inspect import compute_sha256, detect_media_type, inspect_audio
 
 
 def test_compute_sha256(tmp_path: Path):

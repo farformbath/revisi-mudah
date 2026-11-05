@@ -2,7 +2,7 @@
 
 import pytest
 
-from mentorspec.core.policy import (
+from revisi_mudah.core.policy import (
     CloudUploadConsent,
     PrivacyPolicy,
     PrivacyViolationError,

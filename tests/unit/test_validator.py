@@ -2,7 +2,7 @@
 
 import pytest
 
-from mentorspec.core.contracts import (
+from revisi_mudah.core.contracts import (
     AudioResult,
     AudioSource,
     AuthorAdjudication,
@@ -16,7 +16,7 @@ from mentorspec.core.contracts import (
     Transcription,
     TranscriptSegment,
 )
-from mentorspec.core.validator import (
+from revisi_mudah.core.validator import (
     EvidenceIntegrityError,
     SemanticValidationError,
     validate_adjudication,

@@ -1,6 +1,6 @@
 """Smoke tests for MentorSpec MCP tools."""
 
-from mentorspec.mcp.tools import (
+from revisi_mudah.mcp.tools import (
     tool_academic_adjudicate,
     tool_academic_build_roadmap,
     tool_academic_export_ars,

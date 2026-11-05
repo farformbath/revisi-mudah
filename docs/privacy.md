@@ -1,7 +1,7 @@
-# MentorSpec Privacy & Data Protection Specification
+# Revisi Mudah Privacy & Data Protection Specification
 
 ## 1. Principles
-Thesis supervision recordings frequently contain sensitive academic IP, unreleased research findings, institutional discussions, and personal evaluations. MentorSpec enforces a zero-silent-upload architecture.
+Thesis supervision recordings frequently contain sensitive academic IP, unreleased research findings, institutional discussions, and personal evaluations. Revisi Mudah enforces a zero-silent-upload architecture.
 
 ## 2. Policy Modes
 - `deny`: Strictly forbids any network transmission of audio bytes. Only local providers (e.g., local Whisper.cpp) can execute.

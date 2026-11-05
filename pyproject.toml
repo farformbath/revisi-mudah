@@ -1,7 +1,7 @@
 [project]
-name = "mentorspec"
+name = "revisi-mudah"
 version = "0.1.0"
-description = "MentorSpec — Audio-to-Academic Implementation Planning System"
+description = "Revisi Mudah — Dari rekaman bimbingan menjadi rencana revisi yang terstruktur."
 readme = "README.md"
 authors = [
     { name = "farformbath", email = "67770352+farformbath@users.noreply.github.com" }
@@ -18,8 +18,10 @@ dependencies = [
 ]
 
 [project.scripts]
-mentorspec = "mentorspec.cli:main"
-mentorspec-mcp = "mentorspec.mcp.server:main"
+revisi-mudah = "revisi_mudah.cli:main"
+revisi-mudah-mcp = "revisi_mudah.mcp.server:main"
+mentorspec = "revisi_mudah.cli:main"
+mentorspec-mcp = "revisi_mudah.mcp.server:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

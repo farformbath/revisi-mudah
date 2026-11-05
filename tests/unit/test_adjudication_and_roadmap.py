@@ -1,12 +1,12 @@
 """Unit tests for author adjudication, roadmap generation, and ARS handoff adapter."""
 
-from mentorspec.academic.adjudication import (
+from revisi_mudah.academic.adjudication import (
     apply_adjudication,
     extract_adjudicated_subsets,
 )
-from mentorspec.academic.ars_adapter import export_ars_revision_roadmap
-from mentorspec.academic.roadmap import generate_implementation_plan
-from mentorspec.core.contracts import (
+from revisi_mudah.academic.ars_adapter import export_ars_revision_roadmap
+from revisi_mudah.academic.roadmap import generate_implementation_plan
+from revisi_mudah.core.contracts import (
     AdjudicationDecision,
     AudioResult,
     AudioSource,
