@@ -38,11 +38,17 @@ function Get-ThesisManifest {
 # 1. Snapshot before pilot
 $before = @(Get-ThesisManifest -Root $thesisRoot)
 
-# 2. Run MentorSpec pipeline
+# 2. Run complete MentorSpec pipeline:
+#    a. Inspect audio
+#    b. Transcribe audio
+#    c. Extract feedback candidates
+#    d. Perform author adjudication
+#    e. Build implementation plan (and optional ARS export)
 uv run mentorspec inspect bimbingan.m4a
 uv run mentorspec transcribe bimbingan.m4a -o transcript.json --cloud-consent deny
+# (Proceed through adjudication and roadmap generation; do not edit thesis files concurrently)
 
-# 3. Snapshot after pilot
+# 3. Snapshot after complete pipeline execution
 $after = @(Get-ThesisManifest -Root $thesisRoot)
 
 # 4. Compare file paths and content hashes
@@ -61,8 +67,10 @@ if ($diff.Count -eq 0) {
 - **`faster-whisper`:** Requires CTranslate2 format model weights.
 - **Terminology Standard:** Use *"Local-only transcription with cloud upload disabled"* for `--cloud-consent deny`. Reserve *"Air-gapped"* strictly for environments with physically/logically isolated network interfaces.
 
-## 7. Pilot Quality Evaluation Standard
-1. **Word Error Rate (WER):** $WER = \frac{S + D + I}{N}$ with normalized casing and punctuation.
-2. **Feedback Precision:** Proportion of extracted items that represent genuine supervisor directives.
-3. **Feedback Recall:** Proportion of actual supervisor directives identified.
-4. **Evidence Traceability:** Proportion of items possessing valid quotes and timestamp bounds.
+## 7. Pilot Quality Evaluation Standard (Operational Definitions)
+1. **Word Error Rate (WER):** $\text{WER} = \frac{S + D + I}{N}$ against human-corrected reference. Normalization covers case and basic punctuation only; **do not** normalize numbers, acronyms, or methodology terms.
+2. **Feedback Precision:** $\frac{\text{True Substantive Directives}}{\text{Total Extracted Feedback Items}}$.
+3. **Feedback Recall:** $\frac{\text{Caught Directives}}{\text{Total Substantive Directives in Human Reference}}$.
+4. **Evidence Traceability (Dual Verification):**
+   - **Structural Verification:** Quote strictly matches transcript segment text and timestamp interval.
+   - **Audio Verification:** Human auditor confirms supervisor utterance is audible at the designated timestamp.

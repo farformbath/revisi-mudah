@@ -133,6 +133,7 @@ Windows default:
 ---
 
 ## 6. Deployment Verification Tiers
-MentorSpec distinguishes two levels of deployment verification:
+MentorSpec distinguishes three formal tiers of deployment verification:
 1. **Configuration Verified:** File path, root JSON schema, client-specific runner type (`stdio` vs `local`), and argument structures match official client documentation. All 5 configurations above are Configuration Verified.
-2. **Runtime Verified:** The client process actively launches MentorSpec, completes the MCP handshake, and displays the 6 registered tools in its capability palette. Currently tested via Python MCP test suite (`test_mcp_tools.py`), with live end-to-end client handshake scheduled during the controlled pilot.
+2. **Tool Test Verified:** Internal tool calls and data schemas pass automated headless tests (`test_mcp_tools.py` in test suite).
+3. **Client Runtime Verified:** The external client process actively spawns the MentorSpec server, completes the MCP handshake, and surfaces all 6 registered tools in its client palette. This tier is evaluated during the live interactive pilot.
