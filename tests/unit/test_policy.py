@@ -60,3 +60,12 @@ def test_policy_ask_non_interactive_defaults_to_false():
         evaluate_cloud_permission(policy, prompt_callback=None, provider_name="gemini")
         is False
     )
+
+
+def test_policy_rejects_false_preservation():
+    with pytest.raises(ValueError, match="is not supported"):
+        PrivacyPolicy(preserve_original_audio=False)
+    with pytest.raises(ValueError, match="is not supported"):
+        PrivacyPolicy(preserve_verbatim_transcript=False)
+    with pytest.raises(ValueError, match="is not supported"):
+        PrivacyPolicy(preserve_timestamps=False)

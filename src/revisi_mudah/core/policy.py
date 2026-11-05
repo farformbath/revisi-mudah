@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class CloudUploadConsent(str, Enum):
@@ -44,6 +44,21 @@ class PrivacyPolicy(BaseModel):
         default=True,
         description="Invariant: Segment millisecond timestamps are permanently retained.",
     )
+
+    @field_validator(
+        "preserve_original_audio",
+        "preserve_verbatim_transcript",
+        "preserve_timestamps",
+    )
+    @classmethod
+    def validate_immutable_invariants(cls, v: bool, info) -> bool:
+        if v is False:
+            raise ValueError(
+                f"Setting '{info.field_name}=False' is not supported. "
+                "Revisi Mudah strictly enforces immutable preservation of original audio, "
+                "verbatim transcripts, and timestamps."
+            )
+        return v
 
 
 class PrivacyViolationError(Exception):

@@ -39,13 +39,13 @@ def _normalize_text(s: str) -> str:
 
 
 def get_schemas_dir() -> Path:
-    """Resolve schemas directory relative to package or project root."""
-    current = Path(__file__).resolve()
-    for parent in [current.parent.parent.parent.parent, current.parent.parent.parent]:
-        candidate = parent / "schemas"
-        if candidate.is_dir():
-            return candidate
-    raise FileNotFoundError("Could not locate Revisi Mudah schemas directory.")
+    """Resolve the single canonical schemas directory located inside the package."""
+    pkg_schemas = Path(__file__).resolve().parent.parent / "schemas"
+    if pkg_schemas.is_dir():
+        return pkg_schemas
+    raise FileNotFoundError(
+        f"Could not locate package schemas directory at {pkg_schemas}"
+    )
 
 
 def load_json_schema(schema_name: str) -> dict[str, Any]:
