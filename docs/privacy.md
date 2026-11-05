@@ -17,6 +17,6 @@ Audio file provenance records only the base filename (e.g., `bimbingan.m4a`) and
 - **True Offline Assurance:** To achieve a completely offline, air-gapped revision planning workflow, users must pair `--cloud-consent deny` with a locally hosted LLM runner (e.g. Ollama or local Llama.cpp) within their agent harness.
 
 ## 5. Storage and Data Retention Policy
-- The original audio file is NEVER modified or deleted by Revisi Mudah.
-- Transcripts and segment timestamps are permanently preserved as immutable evidence.
-- Revisi Mudah does not support automated file deletion or ephemeral retention switches.
+- Original audio, verbatim transcript, dan timestamp dipertahankan sebagai evidence.
+- Revisi Mudah v1.0 tidak melakukan penghapusan otomatis atau perubahan terhadap artefak tersebut.
+- Kebijakan aplikasi ini mencegah penghapusan otomatis oleh perangkat lunak Revisi Mudah; ini bukan merupakan jaminan penyimpanan fisik tamper-proof di level filesystem atau sistem operasi.

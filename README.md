@@ -93,14 +93,18 @@ Revisi Mudah menyediakan server MCP berbasis stdio (`revisi-mudah-mcp`). Lihat p
 
 ## 📋 Canonical Artifacts
 
-| File | Schema | Deskripsi |
+| File | Package Resource Schema | Deskripsi |
 |---|---|---|
-| `transcript.json` | `schemas/audio-result.schema.json` | Transkrip verbatim dengan timestamp milidetik per segmen |
-| `feedback.json` | `schemas/feedback.schema.json` | Arahan dosen yang terikat langsung ke kutipan verbatim |
-| `adjudication.json` | `schemas/adjudication.schema.json` | Keputusan penulis (accepted, rejected, clarified) |
+| `transcript.json` | `src/revisi_mudah/schemas/audio-result.schema.json` | Transkrip verbatim dengan timestamp milidetik per segmen |
+| `feedback.json` | `src/revisi_mudah/schemas/feedback.schema.json` | Arahan dosen yang terikat langsung ke kutipan verbatim |
+| `adjudication.json` | `src/revisi_mudah/schemas/adjudication.schema.json` | Keputusan penulis (accepted, rejected, clarified) |
 | `implementation-plan.md` | Markdown | Rencana implementasi revisi resmi hanya dari tugas yang disetujui |
 
 ---
+
+## 🏷️ Versioning Specification
+- **Product Release Version:** Revisi Mudah v1.0
+- **Python Distribution Metadata:** `revisi-mudah==0.1.0` (wheel & sdist)
 
 ## 🛡️ License
 MIT License.

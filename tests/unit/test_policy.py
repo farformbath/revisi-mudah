@@ -69,3 +69,10 @@ def test_policy_rejects_false_preservation():
         PrivacyPolicy(preserve_verbatim_transcript=False)
     with pytest.raises(ValueError, match="is not supported"):
         PrivacyPolicy(preserve_timestamps=False)
+
+
+def test_policy_rejects_bypassing_consent_flag():
+    with pytest.raises(
+        ValueError, match="Setting 'require_consent_for_cloud=False' is not permitted"
+    ):
+        PrivacyPolicy(require_consent_for_cloud=False)
