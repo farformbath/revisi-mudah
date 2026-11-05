@@ -20,10 +20,11 @@ class AudioRouter:
 
     def __init__(self, policy: PrivacyPolicy | None = None):
         self.policy = policy or PrivacyPolicy()
+        gemini_provider = GeminiAudioProvider()
         self.providers: dict[str, AudioProvider] = {
             "omp_native": OmpNativeAudioProvider(),
-            "cloud_stt": GeminiAudioProvider(),
-            "gemini_audio": GeminiAudioProvider(),
+            "cloud_stt": gemini_provider,
+            "gemini_audio": gemini_provider,
             "local_whisper": LocalWhisperProvider(),
         }
 

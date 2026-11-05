@@ -99,12 +99,50 @@ def test_validate_audio_result_out_of_order():
         validate_audio_result(audio)
 
 
-def test_validate_audio_result_exceeds_duration():
+def test_validate_audio_result_final_segment_within_tolerance_clamps():
+    # Duration 10000ms, final segment ends at 10150ms (150ms overflow <= 250ms tolerance)
     segments = [
-        TranscriptSegment(id="S001", start_ms=1000, end_ms=70000, text="Too long"),
+        TranscriptSegment(id="S001", start_ms=1000, end_ms=5000, text="First"),
+        TranscriptSegment(id="S002", start_ms=6000, end_ms=10150, text="Final"),
     ]
-    audio = make_sample_audio_result(duration_ms=60000, segments=segments)
-    with pytest.raises(SemanticValidationError, match="exceeds audio duration"):
+    audio = make_sample_audio_result(duration_ms=10000, segments=segments)
+    with pytest.warns(UserWarning, match="Normalizing final segment 'S002'"):
+        validate_audio_result(audio)
+    # Verified clamped to duration
+    assert audio.transcription.segments[1].end_ms == 10000
+
+
+def test_validate_audio_result_final_segment_exact_tolerance_clamps():
+    # Exactly at 250ms tolerance
+    segments = [
+        TranscriptSegment(id="S001", start_ms=1000, end_ms=10250, text="Final"),
+    ]
+    audio = make_sample_audio_result(duration_ms=10000, segments=segments)
+    with pytest.warns(UserWarning, match="clamped within 250ms tolerance"):
+        validate_audio_result(audio)
+    assert audio.transcription.segments[0].end_ms == 10000
+
+
+def test_validate_audio_result_final_segment_beyond_tolerance_fails():
+    # 251ms overflow (> 250ms tolerance)
+    segments = [
+        TranscriptSegment(id="S001", start_ms=1000, end_ms=10251, text="Final"),
+    ]
+    audio = make_sample_audio_result(duration_ms=10000, segments=segments)
+    with pytest.raises(SemanticValidationError, match="exceeding the 250ms tolerance"):
+        validate_audio_result(audio)
+
+
+def test_validate_audio_result_non_final_segment_exceeds_duration_fails():
+    # S001 is non-final, exceeds duration by even 10ms -> must fail immediately
+    segments = [
+        TranscriptSegment(
+            id="S001", start_ms=1000, end_ms=10010, text="Non-final exceeds"
+        ),
+        TranscriptSegment(id="S002", start_ms=10020, end_ms=10030, text="Final"),
+    ]
+    audio = make_sample_audio_result(duration_ms=10000, segments=segments)
+    with pytest.raises(SemanticValidationError, match="Non-final segment 'S001'"):
         validate_audio_result(audio)
 
 

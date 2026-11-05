@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from revisi_mudah.core.contracts import (
@@ -14,6 +15,14 @@ from revisi_mudah.core.contracts import (
     TranscriptSegment,
 )
 from revisi_mudah.providers.base import AudioProvider
+
+
+class WhisperExecutionError(RuntimeError):
+    """Raised when whisper-cli subprocess returns a non-zero exit code."""
+
+
+class WhisperOutputError(RuntimeError):
+    """Raised when whisper-cli fails to generate expected valid JSON output."""
 
 
 class LocalWhisperProvider(AudioProvider):
@@ -96,24 +105,42 @@ class LocalWhisperProvider(AudioProvider):
         # Try whisper-cli binary (whisper.cpp)
         cli_bin = shutil.which(self.binary_path)
         if cli_bin is not None:
-            cmd = [
-                cli_bin,
-                "-m",
-                self.model_path,
-                "-f",
-                str(audio_path),
-                "-oj",  # output JSON
-                "-l",
-                "id",
-            ]
-            subprocess.run(cmd, capture_output=True, text=True, check=True)
-            output_json_path = audio_path.with_suffix(".json")
-            if output_json_path.is_file():
-                with open(output_json_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
+            with tempfile.TemporaryDirectory(prefix="revisi-mudah-whisper-") as tmp_dir:
+                output_prefix = Path(tmp_dir) / "transcript"
+                cmd = [
+                    cli_bin,
+                    "-m",
+                    str(self.model_path),
+                    "-f",
+                    str(audio_path),
+                    "-oj",
+                    "-of",
+                    str(output_prefix),
+                    "-l",
+                    "id",
+                ]
+                res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+                if res.returncode != 0:
+                    raise WhisperExecutionError(
+                        f"whisper-cli failed (exit code {res.returncode}): {res.stderr.strip()}"
+                    )
+
+                output_json_path = output_prefix.with_suffix(".json")
+                if not output_json_path.is_file():
+                    raise WhisperOutputError(
+                        f"whisper-cli completed without expected JSON output: {output_json_path}"
+                    )
+
+                try:
+                    with open(output_json_path, encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception as e:
+                    raise WhisperOutputError(
+                        f"Failed to parse whisper-cli JSON output: {e}"
+                    ) from e
+
                 raw_segs = data.get("transcription", [])
                 for idx, item in enumerate(raw_segs, start=1):
-                    # whisper.cpp offsets are timestamps
                     start_ms = item.get("offsets", {}).get("from", 0)
                     end_ms = item.get("offsets", {}).get("to", start_ms + 1000)
                     seg = TranscriptSegment(
@@ -125,6 +152,7 @@ class LocalWhisperProvider(AudioProvider):
                         confidence=None,
                     )
                     segments.append(seg)
+
                 transcription = Transcription(
                     provider="whisper.cpp",
                     model=Path(self.model_path).name,
@@ -132,7 +160,9 @@ class LocalWhisperProvider(AudioProvider):
                     segments=segments,
                 )
                 return AudioResult(
-                    schema="mentorspec/1.0", source=source, transcription=transcription
+                    schema="mentorspec/1.0",
+                    source=source,
+                    transcription=transcription,
                 )
 
         raise RuntimeError(

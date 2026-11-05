@@ -1,6 +1,8 @@
-"""Backward-compatibility shim for mentorspec namespace.
+"""Backward-compatibility shim for mentorspec root namespace.
 
 Deprecated: Use `revisi_mudah` instead.
+Note: Only the root `mentorspec` namespace is preserved for transition;
+legacy submodule imports (mentorspec.core, etc.) are discontinued in favor of revisi_mudah.
 """
 
 from __future__ import annotations

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from typing import Any
 
 from revisi_mudah.core.contracts import (
     AudioResult,
@@ -85,6 +86,85 @@ def build_extraction_user_prompt(audio: AudioResult) -> str:
     return "\n".join(lines)
 
 
+def extract_json_payload(text: str) -> dict[str, Any]:
+    """
+    Extract a single unambiguous JSON object from raw or model-wrapped text.
+    Supports raw JSON, fenced markdown blocks, and conversational preambles/postambles.
+    Rejects ambiguous (multiple conflicting) JSON payloads or truncated input.
+    """
+    if not text or not text.strip():
+        raise ValueError("Received empty or whitespace-only response from model.")
+
+    cleaned = text.strip()
+
+    # 1. Attempt fenced block extraction if markdown fences are present
+    if "```" in cleaned:
+        lines = cleaned.split("\n")
+        fence_lines = []
+        inside_fence = False
+        fence_count = 0
+        for line in lines:
+            if line.strip().startswith("```"):
+                if not inside_fence:
+                    inside_fence = True
+                    fence_count += 1
+                else:
+                    inside_fence = False
+                continue
+            if inside_fence:
+                fence_lines.append(line)
+        if fence_count == 1:
+            fenced_candidate = "\n".join(fence_lines).strip()
+            if fenced_candidate:
+                try:
+                    val = json.loads(fenced_candidate)
+                    if isinstance(val, dict):
+                        return val
+                except json.JSONDecodeError:
+                    pass
+
+    # 2. Universal scanner using JSONDecoder.raw_decode
+    decoder = json.JSONDecoder()
+    candidates: list[dict[str, Any]] = []
+
+    for index, char in enumerate(cleaned):
+        if char != "{":
+            continue
+        try:
+            val, _ = decoder.raw_decode(cleaned, index)
+            if isinstance(val, dict):
+                candidates.append(val)
+        except json.JSONDecodeError:
+            continue
+
+    if not candidates:
+        raise ValueError("No valid JSON object found in response.")
+
+    # Deduplicate candidates
+    unique_candidates: list[dict[str, Any]] = []
+    for cand in candidates:
+        if cand not in unique_candidates:
+            unique_candidates.append(cand)
+
+    # Prioritize root objects matching known keys
+    root_candidates = [
+        c for c in unique_candidates if "feedback_items" in c or "segments" in c
+    ]
+    if len(root_candidates) == 1:
+        return root_candidates[0]
+    if len(root_candidates) > 1:
+        raise ValueError(
+            "Ambiguous response: multiple root JSON objects found in model output."
+        )
+
+    if len(unique_candidates) == 1:
+        return unique_candidates[0]
+
+    raise ValueError(
+        "Ambiguous response: multiple conflicting JSON objects found in model output."
+    )
+
+
 def parse_extracted_feedback(
     raw_json_str: str,
     audio: AudioResult,
@@ -94,15 +174,7 @@ def parse_extracted_feedback(
     Parse LLM extraction output into a validated MentorFeedback object.
     Enforces that status is 'needs_author_review'.
     """
-    # Clean potential markdown code blocks
-    cleaned = raw_json_str.strip()
-    if cleaned.startswith("```"):
-        cleaned = cleaned.split("\n", 1)[1]
-        if cleaned.endswith("```"):
-            cleaned = cleaned.rsplit("\n", 1)[0]
-        cleaned = cleaned.strip()
-
-    data = json.loads(cleaned)
+    data = extract_json_payload(raw_json_str)
     raw_items = data.get("feedback_items", [])
 
     items: list[FeedbackItem] = []

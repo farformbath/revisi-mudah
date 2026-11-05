@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 
+from revisi_mudah.academic.extraction import extract_json_payload
 from revisi_mudah.core.contracts import (
     AudioResult,
     AudioSource,
@@ -69,15 +69,7 @@ class GeminiAudioProvider(AudioProvider):
                 client.files.delete(name=uploaded.name)
             except (OSError, RuntimeError):
                 pass
-
-            cleaned = response.text.strip()
-            if cleaned.startswith("```"):
-                cleaned = cleaned.split("\n", 1)[1]
-                if cleaned.endswith("```"):
-                    cleaned = cleaned.rsplit("\n", 1)[0]
-                cleaned = cleaned.strip()
-
-            data = json.loads(cleaned)
+            data = extract_json_payload(response.text)
             segments: list[TranscriptSegment] = [
                 TranscriptSegment(
                     id=s["id"],

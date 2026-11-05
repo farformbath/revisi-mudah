@@ -29,13 +29,21 @@ class PrivacyPolicy(BaseModel):
         default_factory=lambda: ["omp_native", "cloud_stt", "local_whisper"],
         description="Priority order for audio transcription providers.",
     )
-    require_consent_for_cloud: bool = Field(
+    # Retention and preservation policy:
+    # Revisi Mudah permanently preserves original audio files, verbatim transcripts,
+    # and timestamps by architecture. These flags document invariant data contracts.
+    preserve_original_audio: bool = Field(
         default=True,
-        description="Enforce user consent prompt when cloud_upload is 'ask'.",
+        description="Invariant: Original audio file is never modified or deleted.",
     )
-    preserve_original_audio: bool = Field(default=True)
-    preserve_verbatim_transcript: bool = Field(default=True)
-    preserve_timestamps: bool = Field(default=True)
+    preserve_verbatim_transcript: bool = Field(
+        default=True,
+        description="Invariant: Verbatim transcript is preserved as acoustic ground truth.",
+    )
+    preserve_timestamps: bool = Field(
+        default=True,
+        description="Invariant: Segment millisecond timestamps are permanently retained.",
+    )
 
 
 class PrivacyViolationError(Exception):
@@ -65,7 +73,7 @@ def evaluate_cloud_permission(
     # CloudUploadConsent.ASK
     if prompt_callback is not None:
         message = (
-            f"MentorSpec requests permission to upload audio to external cloud provider '{provider_name}'. "
+            f"Revisi Mudah requests permission to upload audio to external cloud provider '{provider_name}'. "
             "Do you consent?"
         )
         approved = prompt_callback(message)

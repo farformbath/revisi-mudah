@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-import re
+import warnings
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -29,14 +30,16 @@ class EvidenceIntegrityError(ValidationError):
     """Raised when feedback quotes do not exist in the referenced transcript segment."""
 
 
+TIMESTAMP_END_TOLERANCE_MS: int = 250
+
+
 def _normalize_text(s: str) -> str:
     """Normalize whitespace and lowercase for forgiving substring matching."""
-    return re.sub(r"\s+", " ", s.strip().lower())
+    return " ".join(s.strip().lower().split())
 
 
 def get_schemas_dir() -> Path:
     """Resolve schemas directory relative to package or project root."""
-    # Try local package location or parent repo root
     current = Path(__file__).resolve()
     for parent in [current.parent.parent.parent.parent, current.parent.parent.parent]:
         candidate = parent / "schemas"
@@ -45,16 +48,29 @@ def get_schemas_dir() -> Path:
     raise FileNotFoundError("Could not locate Revisi Mudah schemas directory.")
 
 
-def validate_against_json_schema(data: dict[str, Any], schema_name: str) -> None:
-    """Validate a dictionary directly against a MentorSpec JSON Schema."""
+def load_json_schema(schema_name: str) -> dict[str, Any]:
+    """Load a schema dictionary using importlib.resources with fallback to source tree."""
+    try:
+        schema_resource = (
+            files("revisi_mudah").joinpath("schemas").joinpath(schema_name)
+        )
+        if schema_resource.is_file():
+            return json.loads(schema_resource.read_text(encoding="utf-8"))
+    except (TypeError, ModuleNotFoundError, FileNotFoundError):
+        pass
+
     schemas_dir = get_schemas_dir()
     schema_path = schemas_dir / schema_name
     if not schema_path.is_file():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema_dict = json.load(f)
+    with open(schema_path, encoding="utf-8") as f:
+        return json.load(f)
 
+
+def validate_against_json_schema(data: dict[str, Any], schema_name: str) -> None:
+    """Validate a dictionary directly against a MentorSpec JSON Schema."""
+    schema_dict = load_json_schema(schema_name)
     try:
         jsonschema.validate(instance=data, schema=schema_dict)
     except jsonschema.exceptions.ValidationError as e:
@@ -100,11 +116,30 @@ def validate_audio_result(audio: AudioResult) -> None:
             )
         prev_start = seg.start_ms
 
-        # 4. Duration boundary
-        if audio.source.duration_ms > 0 and seg.end_ms > audio.source.duration_ms:
-            raise SemanticValidationError(
-                f"Segment '{seg.id}' end_ms ({seg.end_ms}) exceeds audio duration ({audio.source.duration_ms})."
-            )
+        # 4. Duration boundary check with final-segment tolerance
+        if audio.source.duration_ms > 0:
+            is_final_segment = idx == len(audio.transcription.segments) - 1
+            overflow = seg.end_ms - audio.source.duration_ms
+
+            if overflow > 0:
+                if not is_final_segment:
+                    raise SemanticValidationError(
+                        f"Non-final segment '{seg.id}' end_ms ({seg.end_ms}) exceeds audio duration ({audio.source.duration_ms})."
+                    )
+                if overflow > TIMESTAMP_END_TOLERANCE_MS:
+                    raise SemanticValidationError(
+                        f"Final segment '{seg.id}' end_ms ({seg.end_ms}) exceeds audio duration "
+                        f"({audio.source.duration_ms}) by {overflow}ms, exceeding the {TIMESTAMP_END_TOLERANCE_MS}ms tolerance."
+                    )
+                # Small overshoot within tolerance on final segment: clamp to duration_ms
+                clamped_end = max(seg.start_ms + 1, audio.source.duration_ms)
+                warnings.warn(
+                    f"Normalizing final segment '{seg.id}' end_ms from {seg.end_ms} to {clamped_end} "
+                    f"(clamped within {TIMESTAMP_END_TOLERANCE_MS}ms tolerance).",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                seg.end_ms = clamped_end
 
 
 def validate_feedback_integrity(feedback: MentorFeedback, audio: AudioResult) -> None:
