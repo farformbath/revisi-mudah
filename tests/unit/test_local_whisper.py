@@ -54,6 +54,7 @@ def test_whisper_cli_success(tmp_path: Path, mock_source):
         return MagicMock(returncode=0, stdout="", stderr="")
 
     with (
+        patch.dict("sys.modules", {"faster_whisper": None}),
         patch("shutil.which", return_value="/bin/mock-whisper-cli"),
         patch("subprocess.run", side_effect=mock_subprocess_run),
     ):
@@ -72,8 +73,8 @@ def test_whisper_cli_execution_failure(tmp_path: Path, mock_source):
     provider = LocalWhisperProvider(
         binary_path="mock-whisper-cli", model_path="model.bin"
     )
-
     with (
+        patch.dict("sys.modules", {"faster_whisper": None}),
         patch("shutil.which", return_value="/bin/mock-whisper-cli"),
         patch(
             "subprocess.run",
@@ -92,8 +93,8 @@ def test_whisper_cli_missing_output(tmp_path: Path, mock_source):
         binary_path="mock-whisper-cli", model_path="model.bin"
     )
 
-    # Subprocess succeeds but doesn't produce output JSON
     with (
+        patch.dict("sys.modules", {"faster_whisper": None}),
         patch("shutil.which", return_value="/bin/mock-whisper-cli"),
         patch("subprocess.run", return_value=MagicMock(returncode=0, stderr="")),
         pytest.raises(WhisperOutputError, match="without expected JSON output"),

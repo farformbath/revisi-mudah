@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import shutil
 import subprocess
 import tempfile
@@ -77,15 +78,20 @@ class LocalWhisperProvider(AudioProvider):
                 if end_ms <= start_ms:
                     end_ms = start_ms + 1000
 
+                conf = None
+                if hasattr(s, "avg_logprob") and s.avg_logprob is not None:
+                    try:
+                        conf = round(float(min(1.0, max(0.0, math.exp(s.avg_logprob)))), 4)
+                    except (OverflowError, ValueError):
+                        conf = None
+
                 seg = TranscriptSegment(
                     id=f"S{idx:03d}",
                     start_ms=start_ms,
                     end_ms=end_ms,
                     speaker=None,
                     text=s.text.strip(),
-                    confidence=float(getattr(s, "avg_logprob", 0.0))
-                    if hasattr(s, "avg_logprob")
-                    else None,
+                    confidence=conf,
                 )
                 segments.append(seg)
 
