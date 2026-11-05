@@ -46,7 +46,19 @@ def detect_media_type(path: Path) -> str:
 
 
 def get_audio_duration_ms(path: Path) -> int:
-    """Extract audio duration in milliseconds using mutagen if available."""
+    """Extract audio duration in milliseconds using wave or mutagen."""
+    # Try standard library wave module first if it's a WAV file
+    if path.suffix.lower() == ".wav":
+        try:
+            import wave
+            with wave.open(str(path), "rb") as wf:
+                frames = wf.getnframes()
+                rate = wf.getframerate()
+                if rate > 0:
+                    return int((frames / float(rate)) * 1000)
+        except (OSError, wave.Error):
+            pass
+
     if mutagen is not None:
         try:
             audio_info = mutagen.File(str(path))

@@ -69,7 +69,11 @@ def test_mcp_tools_pipeline(tmp_path):
         "feedback_ref": "FB-001",
         "author": {"name": "Far", "adjudicated_at": "2026-11-05T12:00:00Z"},
         "decisions": [
-            {"feedback_id": "F001", "decision": "accepted", "author_notes": "Setuju dengan dosen"}
+            {
+                "feedback_id": "F001",
+                "decision": "accepted",
+                "author_notes": "Setuju dengan dosen",
+            }
         ],
     }
     adjudicated_fb = tool_academic_adjudicate(feedback_res, adjudication_data)
