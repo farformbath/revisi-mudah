@@ -95,6 +95,15 @@ class LocalWhisperProvider(AudioProvider):
                 )
                 segments.append(seg)
 
+            if source.duration_ms > 0:
+                filtered_segs = []
+                for s in segments:
+                    if s.start_ms >= source.duration_ms:
+                        continue
+                    if s.end_ms > source.duration_ms:
+                        s.end_ms = max(s.start_ms + 1, source.duration_ms)
+                    filtered_segs.append(s)
+                segments = filtered_segs
             lang = info.language if info and hasattr(info, "language") else "id"
             transcription = Transcription(
                 provider="faster-whisper",
@@ -158,6 +167,16 @@ class LocalWhisperProvider(AudioProvider):
                         confidence=None,
                     )
                     segments.append(seg)
+
+                if source.duration_ms > 0:
+                    filtered_segs = []
+                    for s in segments:
+                        if s.start_ms >= source.duration_ms:
+                            continue
+                        if s.end_ms > source.duration_ms:
+                            s.end_ms = max(s.start_ms + 1, source.duration_ms)
+                        filtered_segs.append(s)
+                    segments = filtered_segs
 
                 transcription = Transcription(
                     provider="whisper.cpp",
